@@ -53,7 +53,7 @@
 #define cn_app_csq             2
 
 
-unsigned char s_app_psk[] = {0x01,0x02,0x03,0x04,0x05,0x06};
+unsigned char s_app_psk[] = {0x87,0x65,0x43,0x21};
 
 #pragma pack(1)
 typedef struct
