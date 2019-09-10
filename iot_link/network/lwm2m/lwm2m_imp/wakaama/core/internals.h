@@ -51,7 +51,7 @@
  *    Bosch Software Innovations GmbH - Please refer to git log
  *    Pascal Rieux - Please refer to git log
  *    Scott Bertin - Please refer to git log
- *
+ *    
  *******************************************************************************/
 /*
  Copyright (c) 2013, 2014 Intel Corporation
@@ -98,7 +98,6 @@
 
 #include "er-coap-13/er-coap-13.h"
 #include "connection.h"
-
 
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
@@ -343,7 +342,6 @@ uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, 
 void bootstrap_start(lwm2m_context_t * contextP);
 lwm2m_status_t bootstrap_getStatus(lwm2m_context_t * contextP);
 bool bootstrap_isBsServerIpValid(const lwm2m_context_t *contextP);
-
 
 // defined in tlv.c
 int tlv_parse(uint8_t * buffer, size_t bufferLen, lwm2m_data_t ** dataP);
