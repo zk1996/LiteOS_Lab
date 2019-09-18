@@ -1,37 +1,3 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) <2016-2018>, <Huawei Technologies Co., Ltd>
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific prior written
- * permission.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *---------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------
- * Notice of Export Control Law
- * ===============================================
- * Huawei LiteOS may be subject to applicable export control laws and regulations, which might
- * include those applicable to Huawei LiteOS of U.S. and the country in which you are located.
- * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
- * applicable export control laws and regulations.
- *---------------------------------------------------------------------------*/
-
 /*******************************************************************************
  *
  * Copyright (c) 2013, 2014 Intel Corporation and others.
@@ -125,7 +91,7 @@ Contains code snippets which are:
 #include <string.h>
 
 #include <stdio.h>
-#include "commandline.h"
+
 
 static void handle_reset(lwm2m_context_t * contextP,
                          void * fromSessionH,
@@ -246,7 +212,7 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
     {
         LOG_ARG("Parsed: ver %u, type %u, tkl %u, code %u.%.2u, mid %u, Content type: %d",
                 message->version, message->type, message->token_len, message->code >> 5, message->code & 0x1F, message->mid, message->content_type);
-        //LOG_ARG("Payload: %.*s", message->payload_len, message->payload);   //%s can not used for binary data.
+        LOG_ARG("Payload: %.*s", message->payload_len, message->payload);
         if (message->code >= COAP_GET && message->code <= COAP_DELETE)
         {
             uint32_t block_num = 0;
@@ -334,13 +300,15 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
             }
             if (coap_error_code==NO_ERROR)
             {
+                /* Save original payload pointer for later freeing. Payload in response may be updated. */
+                uint8_t *payload = response->payload;
                 if ( IS_OPTION(message, COAP_OPTION_BLOCK2) )
                 {
                     /* unchanged new_offset indicates that resource is unaware of blockwise transfer */
                     if (new_offset==block_offset)
                     {
                         LOG_ARG("Blockwise: unaware resource with payload length %u/%u", response->payload_len, block_size);
-                        if (block_offset >= message->payload_len)
+                        if (block_offset >= response->payload_len)
                         {
                             LOG("handle_incoming_data(): block_offset >= response->payload_len");
 
@@ -371,7 +339,7 @@ void lwm2m_handle_packet(lwm2m_context_t * contextP,
 
                 coap_error_code = message_send(contextP, response, fromSessionH);
 
-                lwm2m_free(response->payload);
+                lwm2m_free(payload);
                 response->payload = NULL;
                 response->payload_len = 0;
             }
@@ -468,7 +436,6 @@ uint8_t message_send(lwm2m_context_t * contextP,
         if (0 != pktBufferLen)
         {
             result = lwm2m_buffer_send(sessionH, pktBuffer, pktBufferLen, contextP->userData);
-            output_buffer(stderr, (uint8_t *)pktBuffer, pktBufferLen, 0);
         }
         lwm2m_free(pktBuffer);
     }
