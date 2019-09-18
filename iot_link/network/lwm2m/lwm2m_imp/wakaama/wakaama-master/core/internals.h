@@ -91,30 +91,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
 #include "er-coap-13/er-coap-13.h"
-#include "connection.h"
 
 #ifdef LWM2M_WITH_LOGS
 #include <inttypes.h>
-#define LOG(STR) (void)lwm2m_printf("[%d][%s:%d] " STR "\r\n", (uint32_t)lwm2m_gettime(), __func__ , __LINE__)
-#define LOG_ARG(FMT, ...) (void)lwm2m_printf("[%d][%s:%d] " FMT "\r\n", (uint32_t)lwm2m_gettime(), __func__ , __LINE__ , __VA_ARGS__)
+#define LOG(STR) lwm2m_printf("[%s:%d] " STR "\r\n", __func__ , __LINE__)
+#define LOG_ARG(FMT, ...) lwm2m_printf("[%s:%d] " FMT "\r\n", __func__ , __LINE__ , __VA_ARGS__)
 #define LOG_URI(URI)                                                                \
 {                                                                                   \
-    if ((URI) == NULL) (void)lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
+    if ((URI) == NULL) lwm2m_printf("[%s:%d] NULL\r\n", __func__ , __LINE__);     \
     else                                                                            \
     {                                                                               \
-        (void)lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
-        if (LWM2M_URI_IS_SET_INSTANCE(URI)) (void)lwm2m_printf("/%d", (URI)->instanceId); \
-        if (LWM2M_URI_IS_SET_RESOURCE(URI)) (void)lwm2m_printf("/%d", (URI)->resourceId); \
-        (void)lwm2m_printf("\r\n");                                                       \
+        lwm2m_printf("[%s:%d] /%d", __func__ , __LINE__ , (URI)->objectId);       \
+        if (LWM2M_URI_IS_SET_INSTANCE(URI)) lwm2m_printf("/%d", (URI)->instanceId); \
+        if (LWM2M_URI_IS_SET_RESOURCE(URI)) lwm2m_printf("/%d", (URI)->resourceId); \
+        lwm2m_printf("\r\n");                                                       \
     }                                                                               \
 }
-#define UNUSEX(x)
 #define STR_STATUS(S)                                           \
 ((S) == STATE_DEREGISTERED ? "STATE_DEREGISTERED" :             \
 ((S) == STATE_REG_PENDING ? "STATE_REG_PENDING" :               \
@@ -148,7 +145,6 @@
 ((S) == STATE_READY ? "STATE_READY" :      \
 "Unknown"))))))
 #else
-#define UNUSEX(x) (x)=(x)
 #define LOG_ARG(FMT, ...)
 #define LOG(STR)
 #define LOG_URI(URI)
@@ -328,7 +324,6 @@ void registration_freeClient(lwm2m_client_t * clientP);
 uint8_t registration_start(lwm2m_context_t * contextP);
 void registration_step(lwm2m_context_t * contextP, time_t currentTime, time_t * timeoutP);
 lwm2m_status_t registration_getStatus(lwm2m_context_t * contextP);
-void registration_reset(lwm2m_context_t * contextP, lwm2m_server_t * serverP);
 
 // defined in packet.c
 uint8_t message_send(lwm2m_context_t * contextP, coap_packet_t * message, void * sessionH);
@@ -341,7 +336,6 @@ uint8_t bootstrap_handleFinish(lwm2m_context_t * context, void * fromSessionH);
 uint8_t bootstrap_handleRequest(lwm2m_context_t * contextP, lwm2m_uri_t * uriP, void * fromSessionH, coap_packet_t * message, coap_packet_t * response);
 void bootstrap_start(lwm2m_context_t * contextP);
 lwm2m_status_t bootstrap_getStatus(lwm2m_context_t * contextP);
-bool bootstrap_isBsServerIpValid(const lwm2m_context_t *contextP);
 
 // defined in tlv.c
 int tlv_parse(uint8_t * buffer, size_t bufferLen, lwm2m_data_t ** dataP);
@@ -377,14 +371,7 @@ size_t utils_base64Encode(uint8_t * dataP, size_t dataLen, uint8_t * bufferP, si
 lwm2m_server_t * utils_findServer(lwm2m_context_t * contextP, void * fromSessionH);
 lwm2m_server_t * utils_findBootstrapServer(lwm2m_context_t * contextP, void * fromSessionH);
 #endif
-static inline int dm_isUriOpaqueHandle(const lwm2m_uri_t * uriP)
-{
-    return (19 == uriP->objectId);
-}
 
- lwm2m_server_t * registration_get_registered_server(lwm2m_context_t * contextP);
-bool lwm2m_isBsCtrlInServerInitiatedBs(const lwm2m_context_t *contextP);
-
-
+#include "internals_ext.h"
 
 #endif

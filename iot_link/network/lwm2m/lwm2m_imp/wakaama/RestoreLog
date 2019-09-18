@@ -1,6 +1,14 @@
 wakaama RestoreLog
 
 
+bootstrap.c
+internals.h
+observe.c
+registration.c  (2019-9-18)
+    - 将扩展的函数、头文件移到组件外对应的ext文件中
+    * 还原一些日志, 类型转换等
+
+
 block1.c
 er-coap-13.c
 packet.c

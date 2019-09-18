@@ -126,37 +126,6 @@ static void prv_requestBootstrap(lwm2m_context_t * context,
 }
 
 
-static void prv_resetBootstrapServer(lwm2m_server_t *serverP, void *userData)
-{
-     if (serverP->sessionH != NULL)
-     {
-         lwm2m_close_connection(serverP->sessionH, userData);
-         serverP->sessionH = NULL;
-     }
-     free_block1_buffer(serverP->block1Data);
-     serverP->block1Data = NULL;
-}
-
-
-static void prv_createBsConnection(lwm2m_context_t *contextP, lwm2m_server_t *targetP)
-{
-
-    prv_resetBootstrapServer(targetP, contextP->userData);
-
-    if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-    {
-        if (targetP != NULL)
-        {
-            targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, true);
-        }
-        return;
-    }
-
-    targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, false);
-}
-
-
-
 /*
  * modify info:
  * modify date:     2019-06-04
@@ -189,7 +158,7 @@ void bootstrap_step(lwm2m_context_t *contextP,
             {
                 targetP->registration = (currentTime + targetP->lifetime);
             }
-            prv_createBsConnection(contextP, targetP);
+            bootstrap_createBsConnection(contextP, targetP);
             currentTime = lwm2m_gettime();
             targetP->status = STATE_BS_HOLD_OFF;
 
@@ -298,23 +267,6 @@ uint8_t bootstrap_handleFinish(lwm2m_context_t * context,
 
     return COAP_IGNORE;
 }
-bool bootstrap_isBsServerIpValid(const lwm2m_context_t *contextP)
-{
-    lwm2m_server_t *targetP;
-
-    targetP = contextP->bootstrapServerList;
-    while (targetP != NULL)
-    {
-        if(lwm2m_is_sec_obj_uri_valid(targetP->secObjInstID, contextP->userData))
-        {
-            return true;
-        }
-        targetP = targetP->next;
-    }
-
-    return false;
-}
-
 
 /*
  * Reset the bootstrap servers statuses
