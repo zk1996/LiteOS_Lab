@@ -89,7 +89,6 @@
 #include <string.h>
 
 #include <stdio.h>
-#include <osal.h>
 
 
 lwm2m_context_t * lwm2m_init(void * userData)
@@ -109,22 +108,6 @@ lwm2m_context_t * lwm2m_init(void * userData)
 }
 
 #ifdef LWM2M_CLIENT_MODE
-
-
-static lwm2m_event_handler_t event_handler = NULL;
-void lwm2m_register_event_handler(lwm2m_event_handler_t callback)
-{
-    event_handler = callback;
-}
-
-void lwm2m_notify_even(module_type_t type, int code, const char *arg, int arg_len)
-{
-    if(event_handler != NULL)
-    {
-        event_handler(type, code, arg, arg_len);
-    }
-}
-
 void lwm2m_deregister(lwm2m_context_t * context)
 {
     lwm2m_server_t * server = context->serverList;
@@ -269,154 +252,6 @@ void lwm2m_close(lwm2m_context_t * contextP)
     prv_deleteTransactionList(contextP);
     lwm2m_free(contextP);
 }
-
-
-static bool prv_isBoostrpEnable(const lwm2m_context_t *contextP)
-{
-#ifdef LWM2M_BOOTSTRAP
-    return contextP->bsCtrl.bsType != BOOTSTRAP_FACTORY;
-#else
-    return false;
-#endif
-}
-
-/* BsCtrl bootstrap control is used to control the register(factory bootstrap(FBS)), client initiated bootstrap(CIBS),
-and server initiated bootstrap(CIBS).it try max time to register and the change to bootstrap(CIBS and SIBS) as the bs type.
-the state is STATE_REGISTER_REQUIRED, STATE_BOOTSTRAP_REQUIRED and STATE_NON. CIBS is only state is STATE_BOOTSTRAP_REQUIRED,
-,cnt is 0 and bs type is BOOTSTRAP_SEQUENCE. cnt is used to calculte the delay for the next retry.
-Delay(cnt) = Base + Interval * cnt; Base and Interval are configured by different macros.
-*/
-bool lwm2m_isBsCtrlInServerInitiatedBs(const lwm2m_context_t *contextP)
-{
-    return (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (contextP->bsCtrl.cnt == 0);
-}
-
-void lwm2m_initBsCtrlStat(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bs_type)
-{
-    memset(&contextP->bsCtrl, 0, sizeof(contextP->bsCtrl));
-    contextP->bsCtrl.bsType = bs_type;
-    contextP->bsCtrl.state = STATE_INITIAL;
-}
-
-static void lwm2m_setBsCtrlStatWithoutCheck(lwm2m_context_t *contextP, lwm2m_client_state_t state)
-{
-    if (contextP->bsCtrl.state != state)
-    {
-        contextP->bsCtrl.state = state;
-        contextP->bsCtrl.cnt = 0;
-        return;
-    }
-    {
-        uint32_t maxValue = ((STATE_REGISTER_REQUIRED == state)
-                            ? MAX_FACTORY_BS_RETRY_CNT : MAX_CLIENT_INITIATED_BS_RETRY_CNT);
-
-        if ((STATE_BOOTSTRAP_REQUIRED == state) && (BOOTSTRAP_SEQUENCE == contextP->bsCtrl.bsType))
-        {
-            maxValue++;
-        }
-        if(++(contextP->bsCtrl.cnt) >= maxValue)
-        {
-            contextP->bsCtrl.state = ((STATE_REGISTER_REQUIRED == contextP->bsCtrl.state)
-                                     ? STATE_BOOTSTRAP_REQUIRED :STATE_REGISTER_REQUIRED);
-            contextP->bsCtrl.cnt = 0;
-        }
-    }
-
-}
-
-void lwm2m_setBsCtrlStat(lwm2m_context_t *contextP, lwm2m_client_state_t state)
-{
-    lwm2m_client_state_t oldState = contextP->bsCtrl.state;
-    uint32_t oldCnt = contextP->bsCtrl.cnt;
-
-    lwm2m_setBsCtrlStatWithoutCheck(contextP, state);
-
-    if (STATE_REGISTER_REQUIRED == contextP->bsCtrl.state)
-    {
-        if (contextP->serverList == NULL)
-        {
-            contextP->bsCtrl.state = STATE_BOOTSTRAP_REQUIRED;
-            contextP->bsCtrl.cnt = 0;
-        }
-    }
-
-    if (STATE_BOOTSTRAP_REQUIRED == contextP->bsCtrl.state)
-    {
-        if ((!prv_isBoostrpEnable(contextP))
-            || (contextP->bootstrapServerList == NULL))
-        {
-            contextP->bsCtrl.state = STATE_REGISTER_REQUIRED;
-            contextP->bsCtrl.cnt = 0;
-            goto END;
-        }
-
-        // bootstrapServerList not empty, int CIBS but bs ip not valid.
-        if((!lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-            #if defined(LWM2M_BOOTSTRAP)
-               && (!bootstrap_isBsServerIpValid(contextP))
-            #endif
-            )
-        {
-            //FBS
-            if (contextP->serverList)
-            {
-                contextP->bsCtrl.state = STATE_REGISTER_REQUIRED;
-                contextP->bsCtrl.cnt = 0;
-            }
-            // only in SIBS
-            else if ((contextP->serverList == NULL) && (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE))
-            {
-                contextP->bsCtrl.cnt = 0;
-            }
-            else
-            {
-            }
-        }
-    }
-END:
-    if ((oldState != contextP->bsCtrl.state)
-        || (oldCnt != contextP->bsCtrl.cnt))
-    {
-        LOG_ARG("bsctrlstat (%d,%d) to (%d,%d)", oldState, oldCnt,
-                    contextP->bsCtrl.state, contextP->bsCtrl.cnt);
-    }
-
-}
-
-static void lwm2m_delayBsRetry(lwm2m_context_t *contextP)
-{
-    uint32_t delayBase;
-    uint32_t delayInterval;
-    uint32_t cnt = contextP->bsCtrl.cnt;
-    uint32_t expireTime;
-
-    if (contextP->bsCtrl.state == STATE_REGISTER_REQUIRED)
-    {
-        delayBase = FACTORY_BS_DELAY_BASE;
-        delayInterval = FACTORY_BS_DELAY_INTERVAL;
-    }
-    else
-    {
-        delayBase = CLIENT_INITIATED_BS_DELAY_BASE;
-        delayInterval = CLIENT_INITIATED_BS_DELAY_INTERVAL;
-        if ((contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (cnt > 0))
-        {
-            cnt--;
-        }
-    }
-
-    expireTime = delayBase + delayInterval * cnt;
-    if (expireTime > 0)
-    {
-        lwm2m_delay(expireTime);
-    }
-}
-
-lwm2m_client_state_t lwm2m_getBsCtrlStat(const lwm2m_context_t *contextP)
-{
-    return contextP->bsCtrl.state;
-}
-
 
 #ifdef LWM2M_CLIENT_MODE
 static int prv_refreshServerList(lwm2m_context_t * contextP)
@@ -574,19 +409,6 @@ int lwm2m_remove_object(lwm2m_context_t * contextP,
     return 0;
 }
 
-
-static void lwm2m_reset_register(lwm2m_context_t *context)
-{
-    lwm2m_server_t *server = context->serverList;
-
-    LOG("Entering");
-    while (NULL != server)
-    {
-        registration_reset(context, server);
-        server = server->next;
-    }
-}
-
 int lwm2m_reconnect(lwm2m_context_t *context)
 {
     if(NULL == context)
@@ -604,29 +426,8 @@ int lwm2m_reconnect(lwm2m_context_t *context)
     return COAP_NO_ERROR;
 }
 
-int lwm2m_initBootStrap(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bsType)
-{
-    if (NULL == contextP)
-    {
-        LOG("context null point");
-        return COAP_500_INTERNAL_SERVER_ERROR;
-    }
-
-    contextP->regist_first_flag = ((bsType == BOOTSTRAP_CLIENT_INITIATED) ? false : true);
-    lwm2m_initBsCtrlStat(contextP, bsType);
-    return COAP_NO_ERROR;
-}
-
 #endif
 
-
-
-#define SET_BS_LATER(contextP, newState) \
-do{\
-    lwm2m_setBsCtrlStat(contextP, newState);\
-    contextP->state = lwm2m_getBsCtrlStat(contextP);\
-    lwm2m_delayBsRetry(contextP);\
-}while(0)
 
 int lwm2m_step(lwm2m_context_t * contextP,
                time_t * timeoutP)
@@ -654,7 +455,7 @@ next_step:
             return COAP_503_SERVICE_UNAVAILABLE;
         }
 
-        state = ((!prv_isBoostrpEnable(contextP))
+        state = ((!lwm2m_isBoostrpEnable(contextP))
                  || ((contextP->serverList != NULL) && contextP->regist_first_flag)
                  ?  STATE_REGISTER_REQUIRED : STATE_BOOTSTRAP_REQUIRED);
 
