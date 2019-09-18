@@ -89,7 +89,7 @@
 #ifndef _LWM2M_CLIENT_H_
 #define _LWM2M_CLIENT_H_
 
-#include "liblwm2m_api.h"
+#include "liblwm2m_ext.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,9 +99,6 @@ extern "C" {
 #include <stddef.h>
 #include <stdbool.h>
 #include <time.h>
-
-#include "er-coap-13/er-coap-13.h"
-#include <osal.h>
 
 #ifdef LWM2M_SERVER_MODE
 #ifndef LWM2M_SUPPORT_JSON
@@ -144,13 +141,6 @@ int lwm2m_strncmp(const char * s1, const char * s2, size_t n);
 // Per POSIX specifications, time_t is a signed integer.
 time_t lwm2m_gettime(void);
 
-//get len of random bytes in output.
-int lwm2m_rand(void *output, size_t len);
-
-//delay sometime
-void lwm2m_delay(uint32_t second);
-
-//#define LWM2M_WITH_LOGS
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
 #define lwm2m_printf osal_printf
@@ -251,17 +241,6 @@ bool lwm2m_session_is_equal(void * session1, void * session2, void * userData);
 #define LWM2M_SECURITY_MODE_RAW_PUBLIC_KEY  1
 #define LWM2M_SECURITY_MODE_CERTIFICATE     2
 #define LWM2M_SECURITY_MODE_NONE            3
-
-#define LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME 60
-
-
-#define MAX_FACTORY_BS_RETRY_CNT 3
-#define MAX_CLIENT_INITIATED_BS_RETRY_CNT 3
-#define FACTORY_BS_DELAY_BASE 0
-#define CLIENT_INITIATED_BS_DELAY_BASE 0
-#define FACTORY_BS_DELAY_INTERVAL 10
-#define CLIENT_INITIATED_BS_DELAY_INTERVAL 10
-
 
 
 /*
@@ -383,15 +362,6 @@ struct _lwm2m_data_t
     } value;
 };
 
-typedef void (*lwm2m_data_process) (void*);
-
-typedef struct _lwm2m_data_cfg_t
-{
-    int type;                     /*Êý¾ÝÉÏ±¨ÀàÐÍ*/
-    int cookie;                   /*Êý¾Ýcookie,ÓÃÒÔÔÚack»Øµ÷ÖÐ£¬Çø·Ö²»Í¬µÄÊý¾Ý*/
-    lwm2m_data_process callback;  /*ack»Øµ÷*/
-} lwm2m_data_cfg_t;
-
 typedef enum
 {
     LWM2M_CONTENT_TEXT      = 0,        // Also used as undefined
@@ -408,7 +378,6 @@ int lwm2m_data_parse(lwm2m_uri_t * uriP, uint8_t * buffer, size_t bufferLen, lwm
 int lwm2m_data_serialize(lwm2m_uri_t * uriP, int size, lwm2m_data_t * dataP, lwm2m_media_type_t * formatP, uint8_t ** bufferP);
 void lwm2m_data_free(int size, lwm2m_data_t * dataP);
 
-void lwm2m_data_decode_opaque(const lwm2m_data_t* dataP, int8_t* valueP);
 void lwm2m_data_encode_string(const char * string, lwm2m_data_t * dataP);
 void lwm2m_data_encode_nstring(const char * string, size_t length, lwm2m_data_t * dataP);
 void lwm2m_data_encode_opaque(uint8_t * buffer, size_t length, lwm2m_data_t * dataP);
@@ -460,7 +429,6 @@ typedef uint8_t (*lwm2m_write_callback_t) (uint16_t instanceId, int numData, lwm
 typedef uint8_t (*lwm2m_execute_callback_t) (uint16_t instanceId, uint16_t resourceId, uint8_t * buffer, int length, lwm2m_object_t * objectP);
 typedef uint8_t (*lwm2m_create_callback_t) (uint16_t instanceId, int numData, lwm2m_data_t * dataArray, lwm2m_object_t * objectP);
 typedef uint8_t (*lwm2m_delete_callback_t) (uint16_t instanceId, lwm2m_object_t * objectP);
-typedef uint8_t (*lwm2m_change_callback_t) (uint16_t instanceId, uint8_t* buffer, int length, lwm2m_object_t* objectP);
 
 struct _lwm2m_object_t
 {
@@ -470,7 +438,6 @@ struct _lwm2m_object_t
     lwm2m_read_callback_t     readFunc;
     lwm2m_write_callback_t    writeFunc;
     lwm2m_execute_callback_t  executeFunc;
-    lwm2m_change_callback_t   change;
     lwm2m_create_callback_t   createFunc;
     lwm2m_delete_callback_t   deleteFunc;
     lwm2m_discover_callback_t discoverFunc;
@@ -513,19 +480,6 @@ typedef enum
     BINDING_US,  // UDP plus SMS
     BINDING_UQS  // UDP queue mode plus SMS
 } lwm2m_binding_t;
-
-typedef enum
-{
-    MODULE_LWM2M,
-    MODULE_NET,
-    MODULE_URI,
-}module_type_t;
-
-enum
-{
-    OBSERVE_UNSUBSCRIBE,
-    OBSERVE_SUBSCRIBE,
-};
 
 /*
  * LWM2M block1 data
@@ -660,7 +614,7 @@ struct _lwm2m_transaction_
     time_t                response_timeout; // timeout to wait for response, if token is used. When 0, use calculated acknowledge timeout.
     uint8_t  retrans_counter;
     time_t   retrans_time;
-    coap_packet_t* message;
+    void * message;
     uint16_t buffer_len;
     uint8_t * buffer;
     lwm2m_data_cfg_t   cfg;
@@ -712,16 +666,6 @@ typedef enum
     STATE_READY
 } lwm2m_client_state_t;
 
-typedef enum
-{
-    BS_SEQUENCE_STATE_INITIAL = 0,
-    BS_SEQUENCE_STATE_FACTORY,
-    BS_SEQUENCE_STATE_SERVER_INITIATED,
-    BS_SEQUENCE_STATE_CLIENT_INITIATED,
-    NO_BS_SEQUENCE_STATE
-} lwm2m_bs_sequence_state_t;
-
-
 #endif
 /*
  * LWM2M Context
@@ -736,18 +680,6 @@ typedef enum
 // After a lwm2m_bootstrap_delete() or a lwm2m_bootstrap_write(), the callback is called with the status returned by the
 // client, the URI of the operation (may be nil) and name is nil. The callback return value is ignored.
 typedef int (*lwm2m_bootstrap_callback_t) (void * sessionH, uint8_t status, lwm2m_uri_t * uriP, char * name, void * userData);
-#endif
-
-#ifdef LWM2M_CLIENT_MODE
-/* use to control the bootstrap, factory bootstrap, client initiated bootstrap, server initiated bootstrap.
-factory bootstrap is used security object to register.
-*/
-typedef struct
-{
-    lwm2m_bootstrap_type_e bsType;
-    lwm2m_client_state_t state;
-    uint32_t cnt;
-}lwm2m_bs_control_t;
 #endif
 
 typedef struct _lwm2m_context_t
@@ -806,27 +738,6 @@ int lwm2m_remove_object(lwm2m_context_t * contextP, uint16_t id);
 int lwm2m_update_registration(lwm2m_context_t * contextP, uint16_t shortServerID, bool withObjects);
 
 void lwm2m_resource_value_changed(lwm2m_context_t * contextP, lwm2m_uri_t * uriP);
-void lwm2m_register_observe_ack_call_back(lwm2m_transaction_callback_t callback);
-typedef void(*lwm2m_event_handler_t)(module_type_t type, int code, const char* arg, int arg_len);
-void lwm2m_register_event_handler(lwm2m_event_handler_t callback);
-void lwm2m_notify_even(module_type_t type, int code, const char* arg, int arg_len);
-int lwm2m_reconnect(lwm2m_context_t * context);
-
-
-typedef struct
-{
-    uint32_t format;
-    uint8_t token[8];
-    uint32_t tokenLen;
-    uint32_t counter;
-}lwm2m_observe_info_t;
-
-uint8_t lwm2m_get_observe_info(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info);
-uint8_t lwm2m_send_notify(lwm2m_context_t * contextP, lwm2m_observe_info_t *observe_info, int firmware_update_state, lwm2m_data_cfg_t  *cfg);
-
-int lwm2m_initBootStrap(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bsType);
-
-
 #endif
 
 #ifdef LWM2M_SERVER_MODE
