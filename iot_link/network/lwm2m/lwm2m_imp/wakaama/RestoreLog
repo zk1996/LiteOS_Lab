@@ -1,6 +1,12 @@
 wakaama RestoreLog
 
 
+internals.h
+objects.c
+observe.c       (2019-9-19)
+    - 合并object_checkReadable和object_checkNumeric
+    # 官方master版本在2017年12月20日 23:13:38已合并，commitId: 309a1ec2f5dbb0f8281d9baa86425f053717a6b4
+
 commandline.c   (2019-9-19)
     - 移除无效的修改
     ? output_buffer()打印函数, 做ATING_DEBUG宏控制，暂时保留
