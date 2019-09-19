@@ -141,7 +141,7 @@ static int prv_getRegistrationQueryLength(lwm2m_context_t * contextP,
     if (0 != server->lifetime)
     {
         index += strlen(QUERY_DELIMITER QUERY_LIFETIME);
-        res = utils_intToText(server->lifetime, (uint8_t *)buffer, sizeof(buffer));
+        res = utils_intToText(server->lifetime, buffer, sizeof(buffer));
         if (res == 0) return 0;
         index += res;
     }
@@ -204,7 +204,7 @@ static int prv_getRegistrationQuery(lwm2m_context_t * contextP,
         res = utils_stringCopy(buffer + index, length - index, QUERY_DELIMITER QUERY_LIFETIME);
         if (res < 0) return 0;
         index += res;
-        res = utils_intToText(server->lifetime, (uint8_t *)buffer + index, length - index);
+        res = utils_intToText(server->lifetime, buffer + index, length - index);
         if (res == 0) return 0;
         index += res;
     }
@@ -312,7 +312,6 @@ static uint8_t prv_register(lwm2m_context_t * contextP,
         lwm2m_free(query);
         return COAP_503_SERVICE_UNAVAILABLE;
     }
-    //    coap_pdu_t *pdu = (coap_pdu_t *)(transaction->message);
 
     coap_set_header_uri_path(transaction->message, "/"URI_REGISTRATION_SEGMENT);
     coap_set_header_uri_query(transaction->message, query);

@@ -1,6 +1,13 @@
 wakaama RestoreLog
 
 
+objects.c
+registration.c  (2019-9-19)
+    - 清除日志打印、注释、乱码等
+    - 还原类型转换, 编译器报note
+    - objects.c中新增的访问权限相关的代码, 暂时保留
+
+
 data.c          (2019-9-19)
     - 移除lwm2m_data_decode_opaque函数(尚未使用)
     - 移除lwm2m_data_serialize函数中对19号对象的特殊处理

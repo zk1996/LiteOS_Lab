@@ -79,9 +79,9 @@ typedef void (*lwm2m_data_process) (void*);
 
 typedef struct _lwm2m_data_cfg_t
 {
-    int type;                     /*Êý¾ÝÉÏ±¨ÀàÐÍ*/
-    int cookie;                   /*Êý¾Ýcookie,ÓÃÒÔÔÚack»Øµ÷ÖÐ£¬Çø·Ö²»Í¬µÄÊý¾Ý*/
-    lwm2m_data_process callback;  /*ack»Øµ÷*/
+    int type;
+    int cookie;
+    lwm2m_data_process callback;
 } lwm2m_data_cfg_t;
 
 // in liblwm2m.h
