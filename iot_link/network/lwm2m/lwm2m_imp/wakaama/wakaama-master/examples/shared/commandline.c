@@ -54,14 +54,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <unistd.h>
 #include <inttypes.h>
 #include "liblwm2m.h"
-#include "internals.h"
+
 #include "commandline.h"
 
 #define HELP_COMMAND "help"
 #define HELP_DESC    "Type '"HELP_COMMAND" [COMMAND]' for more details on a command."
 #define UNKNOWN_CMD_MSG "Unknown command. Type '"HELP_COMMAND"' for help."
+
 
 static command_desc_t * prv_find_command(command_desc_t * commandArray,
                                          char * buffer,
@@ -307,7 +309,7 @@ void output_tlv(FILE * stream,
             uint8_t tmp;
 
             print_indent(stream, indent+2);
-            fprintf(stream, "data (%d bytes):\r\n", dataLen);
+            fprintf(stream, "data (%ld bytes):\r\n", dataLen);
             output_buffer(stream, (uint8_t*)buffer + length + dataIndex, dataLen, indent+2);
 
             tmp = buffer[length + dataIndex + dataLen];

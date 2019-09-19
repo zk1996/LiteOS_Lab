@@ -1,6 +1,11 @@
 wakaama RestoreLog
 
 
+commandline.c   (2019-9-19)
+    - 移除无效的修改
+    ? output_buffer()打印函数, 做ATING_DEBUG宏控制，暂时保留
+
+
 liblwm2m.c      (2019-9-18)
     - 将扩展的函数移到组件外, 在internals_ext.h中声明, 在liblwm2m_ext.c中实现
     ? lwm2m_reconnect函数调用私有函数，暂时保留
