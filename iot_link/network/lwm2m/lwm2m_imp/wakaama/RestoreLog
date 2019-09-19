@@ -2,6 +2,11 @@ wakaama RestoreLog
 
 
 internals.h
+transaction.c   (2019-9-19)
+    - 还原internals.h中声明的相关函数
+    - 清除transaction.c中的打印，并还原coap超时重传次数的修改(COAP_MAX_RETRANSMIT)等
+
+internals.h
 objects.c
 observe.c       (2019-9-19)
     - 合并object_checkReadable和object_checkNumeric
