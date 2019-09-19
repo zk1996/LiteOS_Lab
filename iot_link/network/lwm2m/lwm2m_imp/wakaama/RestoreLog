@@ -1,6 +1,13 @@
 wakaama RestoreLog
 
 
+data.c          (2019-9-19)
+    - 移除lwm2m_data_decode_opaque函数(尚未使用)
+    - 移除lwm2m_data_serialize函数中对19号对象的特殊处理
+        1) formatP在management.c的dm_handleRequest函数中已经根据19号对象处理了
+        2) dataP->type在针对19号对象读的时候已经做了LWM2M_TYPE_OPAQUE处理
+        所以，此处应该是兼容19号对象的(待测)
+
 internals.h
 bootstrap.c     (2019-9-19)
     * 将函数bootstrap_step的currentTime参数类型从uint32_t还原为time_t

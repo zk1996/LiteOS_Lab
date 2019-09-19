@@ -88,7 +88,6 @@ typedef struct _lwm2m_data_cfg_t
 //      struct _lwm2m_data_t
 typedef struct _lwm2m_data_t lwm2m_data_t;
 
-void lwm2m_data_decode_opaque(const lwm2m_data_t* dataP, int8_t* valueP);
 
 /*
  * LWM2M Servers
