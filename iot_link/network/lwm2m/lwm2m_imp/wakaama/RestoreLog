@@ -2,6 +2,11 @@ wakaama RestoreLog
 
 
 internals.h
+bootstrap.c     (2019-9-19)
+    * 将函数bootstrap_step的currentTime参数类型从uint32_t还原为time_t
+
+
+internals.h
 transaction.c   (2019-9-19)
     - 还原internals.h中声明的相关函数
     - 清除transaction.c中的打印，并还原coap超时重传次数的修改(COAP_MAX_RETRANSMIT)等

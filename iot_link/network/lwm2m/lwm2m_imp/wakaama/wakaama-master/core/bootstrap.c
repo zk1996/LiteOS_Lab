@@ -134,9 +134,9 @@ static void prv_requestBootstrap(lwm2m_context_t * context,
  *                  the targetP->status are important, change one, should take care of other status.
  *
  */
-void bootstrap_step(lwm2m_context_t *contextP,
-                    uint32_t currentTime,
-                    time_t *timeoutP)
+void bootstrap_step(lwm2m_context_t * contextP,
+                    time_t currentTime,
+                    time_t * timeoutP)
 {
     lwm2m_server_t * targetP;
 
