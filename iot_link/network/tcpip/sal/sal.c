@@ -162,13 +162,15 @@ static void __sal_sockcb_free(int sockfd)
 static tag_sock_cb * __sal_sockcb_getcb(int sockfd)
 {
     tag_sock_cb *sockcb = NULL;
+    int i;
 
-    if((sockfd >=0 ) && (sockfd < s_sal_cb.sock_cb_num))
-    {
-        sockcb = s_sal_cb.sock_cb_tab[sockfd];
+    for (i = 0; i < s_sal_cb.sock_cb_num; ++i) {
+        sockcb = (tag_sock_cb *)s_sal_cb.sock_cb_tab[i];
+        if (sockcb != NULL && sockcb->sock == sockfd) {
+            return sockcb;
     }
-
-    return sockcb;
+    }
+    return NULL;
 }
 
 static int   __sal_sockcb_getfd(tag_sock_cb *sockcb)
@@ -186,7 +188,6 @@ static int   __sal_sockcb_getfd(tag_sock_cb *sockcb)
 
 int sal_socket(int domain, int type, int protocol)
 {
-    int sockfd = -1;
     int sock = -1;
 
     tag_sock_cb *sockcb;
@@ -203,7 +204,6 @@ int sal_socket(int domain, int type, int protocol)
         if(-1 != sock)
         {
             sockcb->sock = sock;
-            sockfd = __sal_sockcb_getfd(sockcb);
         }
         else
         {
@@ -212,7 +212,7 @@ int sal_socket(int domain, int type, int protocol)
     }
 
 
-    return sockfd;
+    return sock;
 }
 
 int sal_bind(int sockfd,const struct sockaddr *addr,socklen_t addrlen)
@@ -252,7 +252,6 @@ int sal_listen(int sockfd,  int backlog)
 
 int sal_accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen)
 {
-    int sockfd_client = -1;
     int sock_client = -1;
     tag_sock_cb *sockcb_client;
 
@@ -261,7 +260,7 @@ int sal_accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen)
     sockcb_server = __sal_sockcb_getcb(sockfd);
     if(NULL == sockcb_server)
     {
-        return sockfd_client;
+        return sock_client;
     }
 
     sockcb_client = __sal_sockcb_malloc();
@@ -275,7 +274,6 @@ int sal_accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen)
         if(-1 != sock_client)
         {
             sockcb_client->sock = sock_client;
-            sockfd_client = __sal_sockcb_getfd(sockcb_client);
         }
         else
         {
@@ -284,7 +282,7 @@ int sal_accept(int sockfd,struct sockaddr *addr,socklen_t *addrlen)
     }
 
 
-    return sockfd_client;
+    return sock_client;
 }
 
 

@@ -23,6 +23,11 @@ ifneq ($(CONFIG_TCPIP_TYPE),"none")
     else
     	
     endif
+	
+    ## sys netinet
+    ifneq ($(CONFIG_OS_TYPE), $(filter $(CONFIG_OS_TYPE), "linux" "macos"))
+	    C_INCLUDES += -I $(iot_link_root)/network/tcpip/include
+    endif
 
     C_DEFS += -D CONFIG_TCPIP_ENABLE=1
     
