@@ -91,7 +91,7 @@ static void prv_requestBootstrap(lwm2m_context_t * context,
 
     if (bootstrapServer->sessionH == NULL)
     {
-        bootstrapServer->sessionH = lwm2m_connect_server(bootstrapServer->secObjInstID, context->userData, false);
+        bootstrapServer->sessionH = lwm2m_connect_server(bootstrapServer->secObjInstID, context->userData);
     }
 
     if (bootstrapServer->sessionH != NULL)

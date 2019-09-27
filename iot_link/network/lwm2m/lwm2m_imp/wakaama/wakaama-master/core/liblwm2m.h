@@ -151,8 +151,8 @@ time_t lwm2m_gettime(void);
 // Returns a session handle that MUST uniquely identify a peer.
 // secObjInstID: ID of the Securty Object instance to open a connection to
 // userData: parameter to lwm2m_init()
-// bootstrap_flag: If BootstrapServer
-void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer);
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData);
+
 
 // Close a session created by lwm2m_connect_server()
 // sessionH: session handle identifying the peer (opaque to the core)
