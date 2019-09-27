@@ -471,7 +471,7 @@ void connection_free(connection_t *connP)
 }
 
 
-void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer)
+void *lwm2m_connect_server_ex(uint16_t secObjInstID, void *userData, bool isServer)
 {
     client_data_t *dataP;
     lwm2m_list_t *instance;
@@ -481,7 +481,7 @@ void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer)
     dataP = (client_data_t *)userData;
     securityObj = dataP->securityObjP;
 
-    ATINY_LOG(LOG_INFO, "Now come into Connection creation in lwm2m_connect_server %d.\n", isServer);
+    ATINY_LOG(LOG_INFO, "Now come into Connection creation %d.\n", isServer);
 
     instance = LWM2M_LIST_FIND(dataP->securityObjP->instanceList, secObjInstID);
 
@@ -498,11 +498,17 @@ void *lwm2m_connect_server(uint16_t secObjInstID, void *userData, bool isServer)
         ATINY_LOG(LOG_INFO, "Connection creation failed.\n");
         return NULL;
     }
-    ATINY_LOG(LOG_INFO, "Connection creation successfully in lwm2m_connect_server.\n");
+    ATINY_LOG(LOG_INFO, "Connection creation successfully.\n");
     dataP->connList = newConnP;
 
     return (void *)newConnP;
 }
+
+void *lwm2m_connect_server(uint16_t secObjInstID, void *userData)
+{
+    return lwm2m_connect_server_ex(secObjInstID, userData, false);
+}
+
 
 void lwm2m_close_connection(void *sessionH, void *userData)
 {

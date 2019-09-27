@@ -58,12 +58,12 @@ void bootstrap_createBsConnection(lwm2m_context_t *contextP, lwm2m_server_t *tar
     {
         if (targetP != NULL)
         {
-            targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, true);
+            targetP->sessionH = lwm2m_connect_server_ex(targetP->secObjInstID, contextP->userData, true);
         }
         return;
     }
 
-    targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData, false);
+    targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData);
 }
 
 

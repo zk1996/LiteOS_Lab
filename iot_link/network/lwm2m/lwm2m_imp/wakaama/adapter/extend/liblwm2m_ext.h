@@ -129,6 +129,11 @@ typedef enum
  */
 
 #ifdef LWM2M_CLIENT_MODE
+// Returns a session handle that MUST uniquely identify a peer.
+// secObjInstID: ID of the Securty Object instance to open a connection to
+// userData: parameter to lwm2m_init()
+// bootstrap_flag: If BootstrapServer
+void *lwm2m_connect_server_ex(uint16_t secObjInstID, void *userData, bool isServer);
 
 /* use to control the bootstrap, factory bootstrap, client initiated bootstrap, server initiated bootstrap.
 factory bootstrap is used security object to register.
