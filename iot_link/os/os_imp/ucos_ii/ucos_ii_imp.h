@@ -33,14 +33,22 @@
  *---------------------------------------------------------------------------*/
 /**
  *  DATE                AUTHOR      INSTRUCTION
- *  2019-05-30 16:09  zhangqianfu  The first version
+ *  2019-09-12 11:33    huerjia  The first version
  *
  */
-#ifndef LITEOS_LAB_IOT_LINK_OTA_SOTA_SOTA_FLAG_H_
-#define LITEOS_LAB_IOT_LINK_OTA_SOTA_SOTA_FLAG_H_
 
-///<  this file is used for the sota
+#ifndef __UCOS_II_IMP_H
+#define __UCOS_II_IMP_H
+
+/**
+ *
+ * @brief: use this function to supply the operation function for the link
+ *
+ * @return:0 success while -1 failed
+ *
+ * */
+
+int osal_install_ucos(void);
 
 
-
-#endif /* LITEOS_LAB_IOT_LINK_OTA_SOTA_SOTA_FLAG_H_ */
+#endif /* __LITEOS_IMP_H */
