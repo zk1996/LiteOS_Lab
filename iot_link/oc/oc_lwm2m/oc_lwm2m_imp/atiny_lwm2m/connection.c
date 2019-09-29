@@ -670,7 +670,6 @@ void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy)
     g_connection_err_notify = nofiy;
 }
 
-#ifdef LWM2M_BOOTSTRAP
 void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH)
 {
     if (sessionH == NULL)
@@ -702,6 +701,5 @@ bool lwm2m_is_sec_obj_uri_valid(uint16_t secObjInstID, void *userData)
             || (targetP->uri == NULL)
             || (targetP->uri[0] == '\0')));
 }
-#endif
 
 
