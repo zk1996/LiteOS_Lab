@@ -146,7 +146,6 @@ static void prv_deleteServerList(lwm2m_context_t * context)
     }
 }
 
-#ifdef LWM2M_BOOTSTRAP
 static void prv_deleteBootstrapServer(lwm2m_server_t * serverP, void *userData)
 {
     // TODO should we free location as in prv_deleteServer ?
@@ -170,7 +169,6 @@ static void prv_deleteBootstrapServerList(lwm2m_context_t * context)
         prv_deleteBootstrapServer(server, context->userData);
     }
 }
-#endif
 
 static void prv_deleteObservedList(lwm2m_context_t * contextP)
 {
@@ -220,12 +218,9 @@ void lwm2m_close(lwm2m_context_t * contextP)
     LOG("Entering");
     lwm2m_deregister(contextP);
     prv_deleteServerList(contextP);
-#ifdef LWM2M_BOOTSTRAP
     prv_deleteBootstrapServerList(contextP);
-#endif
     prv_deleteObservedList(contextP);
     lwm2m_free(contextP->endpointName);
-    //lwm2m_free(contextP->bs_server_uri);
     if (contextP->msisdn != NULL)
     {
         lwm2m_free(contextP->msisdn);
