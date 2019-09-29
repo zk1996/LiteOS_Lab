@@ -283,6 +283,10 @@ void bootstrap_start(lwm2m_context_t * contextP)
     while (targetP != NULL)
     {
         targetP->status = STATE_DEREGISTERED;
+        if (targetP->sessionH == NULL)
+        {
+            targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData);
+        }
         targetP = targetP->next;
     }
 }
