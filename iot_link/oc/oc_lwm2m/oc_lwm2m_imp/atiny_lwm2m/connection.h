@@ -87,9 +87,7 @@ typedef struct _connection_t
     uint16_t bootstrap_flag;
     lwm2m_context_t* lwm2mH;
     uint16_t errs[CONNECTION_ERR_MAX];
-#ifdef LWM2M_BOOTSTRAP
     util_timer_t server_triger_timer;
-#endif
 } connection_t;
 
 typedef void (*lwm2m_connection_err_notify_t)(lwm2m_context_t* context, connection_err_e err_type, bool boostrap_flag);

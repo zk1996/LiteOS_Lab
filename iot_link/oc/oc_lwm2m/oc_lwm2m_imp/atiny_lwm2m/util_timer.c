@@ -32,7 +32,6 @@
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
 
-#ifdef LWM2M_BOOTSTRAP
 #ifdef LWM2M_CLIENT_MODE
 #include "util_timer.h"
 #include "liblwm2m.h"
@@ -79,5 +78,4 @@ void timer_step(util_timer_t *timer)
 }
 
 #endif // LWM2M_CLIENT_MODE
-#endif // LWM2M_BOOTSTRAP
 

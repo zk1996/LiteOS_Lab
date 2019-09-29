@@ -50,8 +50,6 @@
 extern "C" {
 #endif
 
-
-#ifdef LWM2M_BOOTSTRAP
 #ifdef LWM2M_CLIENT_MODE
 
 // time uint is second, and max value 0xffffffff is hundreds of years.so ignore the turn to 0 problem
@@ -71,8 +69,6 @@ void timer_step(util_timer_t *timer);
 
 
 #endif // LWM2M_CLIENT_MODE
-
-#endif // LWM2M_BOOTSTRAP
 
 #ifdef __cplusplus
 }
