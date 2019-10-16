@@ -85,10 +85,6 @@ static int atiny_check_bootstrap_init_param(atiny_param_t *atiny_params)
             return ATINY_ARG_INVALID;
         }
     }
-    else if(BOOTSTRAP_SEQUENCE == atiny_params->server_params.bootstrap_mode)
-    {
-        return ATINY_OK;
-    }
     else
     {
         //it is ok? if the mode value is not 0,1,2, we all set it to 2 ?
@@ -143,7 +139,7 @@ static int atiny_check_psk_init_param(atiny_param_t *atiny_params)
 int  atiny_init(atiny_param_t *atiny_params, void **phandle)
 {
     int result;
-    
+
     result = atiny_init_rpt();
     if (result != ATINY_OK)
     {

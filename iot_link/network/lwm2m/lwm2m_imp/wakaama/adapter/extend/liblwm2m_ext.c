@@ -44,17 +44,6 @@ bool lwm2m_isBoostrpEnable(const lwm2m_context_t *contextP)
 #endif
 }
 
-/* BsCtrl bootstrap control is used to control the register(factory bootstrap(FBS)), client initiated bootstrap(CIBS),
-and server initiated bootstrap(CIBS).it try max time to register and the change to bootstrap(CIBS and SIBS) as the bs type.
-the state is STATE_REGISTER_REQUIRED, STATE_BOOTSTRAP_REQUIRED and STATE_NON. CIBS is only state is STATE_BOOTSTRAP_REQUIRED,
-,cnt is 0 and bs type is BOOTSTRAP_SEQUENCE. cnt is used to calculte the delay for the next retry.
-Delay(cnt) = Base + Interval * cnt; Base and Interval are configured by different macros.
-*/
-bool lwm2m_isBsCtrlInServerInitiatedBs(const lwm2m_context_t *contextP)
-{
-    return (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (contextP->bsCtrl.cnt == 0);
-}
-
 void lwm2m_initBsCtrlStat(lwm2m_context_t *contextP, lwm2m_bootstrap_type_e bs_type)
 {
     memset(&contextP->bsCtrl, 0, sizeof(contextP->bsCtrl));
@@ -74,10 +63,6 @@ static void lwm2m_setBsCtrlStatWithoutCheck(lwm2m_context_t *contextP, lwm2m_cli
         uint32_t maxValue = ((STATE_REGISTER_REQUIRED == state)
                             ? MAX_FACTORY_BS_RETRY_CNT : MAX_CLIENT_INITIATED_BS_RETRY_CNT);
 
-        if ((STATE_BOOTSTRAP_REQUIRED == state) && (BOOTSTRAP_SEQUENCE == contextP->bsCtrl.bsType))
-        {
-            maxValue++;
-        }
         if(++(contextP->bsCtrl.cnt) >= maxValue)
         {
             contextP->bsCtrl.state = ((STATE_REGISTER_REQUIRED == contextP->bsCtrl.state)
@@ -115,25 +100,15 @@ void lwm2m_setBsCtrlStat(lwm2m_context_t *contextP, lwm2m_client_state_t state)
         }
 
         // bootstrapServerList not empty, int CIBS but bs ip not valid.
-        if((!lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-            #if defined(LWM2M_BOOTSTRAP)
-               && (!bootstrap_isBsServerIpValid(contextP))
-            #endif
-            )
+#if defined(LWM2M_BOOTSTRAP)
+        if (!bootstrap_isBsServerIpValid(contextP))
+#endif
         {
             //FBS
             if (contextP->serverList)
             {
                 contextP->bsCtrl.state = STATE_REGISTER_REQUIRED;
                 contextP->bsCtrl.cnt = 0;
-            }
-            // only in SIBS
-            else if ((contextP->serverList == NULL) && (contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE))
-            {
-                contextP->bsCtrl.cnt = 0;
-            }
-            else
-            {
             }
         }
     }
@@ -163,10 +138,6 @@ void lwm2m_delayBsRetry(lwm2m_context_t *contextP)
     {
         delayBase = CLIENT_INITIATED_BS_DELAY_BASE;
         delayInterval = CLIENT_INITIATED_BS_DELAY_INTERVAL;
-        if ((contextP->bsCtrl.bsType == BOOTSTRAP_SEQUENCE) && (cnt > 0))
-        {
-            cnt--;
-        }
     }
 
     expireTime = delayBase + delayInterval * cnt;

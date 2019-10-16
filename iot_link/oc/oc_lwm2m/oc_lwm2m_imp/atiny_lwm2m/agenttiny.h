@@ -104,8 +104,7 @@ typedef enum
     ATINY_GET_SPEED,
     ATINY_GET_TIMESTAMP,
     ATINY_GET_VELOCITY,
-    ATINY_GET_OTA_OPT,
-    ATINY_TRIGER_SERVER_INITIATED_BS
+    ATINY_GET_OTA_OPT
 } atiny_cmd_e;
 
 #define MAX_VELOCITY_LEN 16
@@ -173,7 +172,7 @@ typedef struct
     char* binding;               /*鐩墠鏀寔U鎴栬�匲Q*/
     int   life_time;             /*蹇呴�夛紝榛樿50000,濡傝繃鐭紝鍒欓绻佸彂閫乽pdate鎶ユ枃锛屽杩囬暱锛屽湪绾跨姸鎬佹洿鏂版椂闂撮暱*/
     unsigned int  storing_cnt;   /*storing涓簍rue鏃讹紝lwm2m缂撳瓨鍖烘�诲瓧鑺備釜鏁�*/
- 
+
     atiny_bootstrap_type_e  bootstrap_mode; /* bootstrap mode  */
     int   hold_off_time; /* bootstrap hold off time for server initiated bootstrap */
 } atiny_server_param_t;
