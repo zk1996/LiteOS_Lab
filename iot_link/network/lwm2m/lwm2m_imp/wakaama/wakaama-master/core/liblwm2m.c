@@ -50,7 +50,7 @@
  *    Simon Bernard - Please refer to git log
  *    Toby Jaffey - Please refer to git log
  *    Pascal Rieux - Please refer to git log
- *    
+ *
  *******************************************************************************/
 
 /*
@@ -165,7 +165,6 @@ static void prv_deleteBootstrapServerList(lwm2m_context_t * context)
         lwm2m_server_t * server;
         server = context->bootstrapServerList;
         context->bootstrapServerList = server->next;
-        lwm2m_stop_striger_server_initiated_bs(server->sessionH);
         prv_deleteBootstrapServer(server, context->userData);
     }
 }

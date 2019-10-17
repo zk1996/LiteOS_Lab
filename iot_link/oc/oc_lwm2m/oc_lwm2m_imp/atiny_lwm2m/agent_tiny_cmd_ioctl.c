@@ -460,13 +460,6 @@ int atiny_cmd_ioctl(atiny_cmd_e cmd, char *arg, int len)
     }
 #endif
 
-#if defined(WITH_AT_FRAMEWORK) && defined(USE_NB_NEUL95)
-    case ATINY_TRIGER_SERVER_INITIATED_BS:
-        nb_reattach();
-        result = ATINY_OK;
-        break;
-#endif
-
     default:
         break;
     }

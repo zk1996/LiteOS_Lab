@@ -50,8 +50,7 @@ extern "C" {
 typedef enum
 {
     BOOTSTRAP_FACTORY = 0,
-    BOOTSTRAP_CLIENT_INITIATED,
-    BOOTSTRAP_SEQUENCE
+    BOOTSTRAP_CLIENT_INITIATED
 } lwm2m_bootstrap_type_e;
 
 

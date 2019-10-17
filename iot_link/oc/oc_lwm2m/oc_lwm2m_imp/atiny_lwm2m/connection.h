@@ -87,7 +87,6 @@ typedef struct _connection_t
     uint16_t bootstrap_flag;
     lwm2m_context_t* lwm2mH;
     uint16_t errs[CONNECTION_ERR_MAX];
-    util_timer_t server_triger_timer;
 } connection_t;
 
 typedef void (*lwm2m_connection_err_notify_t)(lwm2m_context_t* context, connection_err_e err_type, bool boostrap_flag);
@@ -98,8 +97,6 @@ void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy);
 
 
 #ifdef LWM2M_BOOTSTRAP
-void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH);
-void lwm2m_stop_striger_server_initiated_bs(connection_t * sessionH);
 bool lwm2m_is_sec_obj_uri_valid(uint16_t secObjInstID, void *userData);
 #endif
 

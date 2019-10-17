@@ -51,17 +51,7 @@ void prv_resetBootstrapServer(lwm2m_server_t *serverP, void *userData)
 
 void bootstrap_createBsConnection(lwm2m_context_t *contextP, lwm2m_server_t *targetP)
 {
-
     prv_resetBootstrapServer(targetP, contextP->userData);
-
-    if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-    {
-        if (targetP != NULL)
-        {
-            targetP->sessionH = lwm2m_connect_server_ex(targetP->secObjInstID, contextP->userData, true);
-        }
-        return;
-    }
 
     targetP->sessionH = lwm2m_connect_server(targetP->secObjInstID, contextP->userData);
 }

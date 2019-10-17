@@ -150,14 +150,6 @@ int connection_parse_host_ip(char *uri, char **parsed_host, char **parsed_port)
     return COAP_NO_ERROR;
 }
 
-#ifdef LWM2M_BOOTSTRAP
-void connection_striger_server_initiated_bs(connection_t * sessionH)
-{
-    (void)sessionH;
-    (void)atiny_cmd_ioctl(ATINY_TRIGER_SERVER_INITIATED_BS, NULL, 0);
-}
-#endif
-
 #ifdef WITH_DTLS
 int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, const char *host, const char *port, int client_or_server)
 {
@@ -186,7 +178,6 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
     info.udp_or_tcp = MBEDTLS_NET_PROTO_UDP;
     info.psk_or_cert = VERIFY_WITH_PSK;
 #ifdef LWM2M_BOOTSTRAP
-    info.step_notify = (void(*)(void *))lwm2m_step_striger_server_initiated_bs;
     info.param = (void(*)(void *))connP;
 #endif
 
@@ -201,14 +192,9 @@ int connection_connect_dtls(connection_t *connP, security_instance_t *targetP, c
 #ifdef LWM2M_BOOTSTRAP
         info.timeout = targetP->clientHoldOffTime;
         info.u.s.local_port = port;
-        timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
-        timer_start(&connP->server_triger_timer);
 #endif
     }
     ret = dtls_shakehand(connP->net_context, &info);
-#ifdef LWM2M_BOOTSTRAP
-    timer_stop(&connP->server_triger_timer);
-#endif
     if (ret != 0)
     {
         ATINY_LOG(LOG_INFO, "ret is %d in connection_create", ret);
@@ -409,18 +395,6 @@ connection_t *connection_create(connection_t *connList,
     {
         // no dtls session
         connP->net_context = __socket_connect(host, port,client_or_server);
-        if(LWM2M_IS_SERVER   == client_or_server)
-        {
-            #ifdef LWM2M_BOOTSTRAP
-            if (connP->net_context)
-            {
-                connection_striger_server_initiated_bs(connP);
-                timer_init(&connP->server_triger_timer, LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME, (void(*)(void*))connection_striger_server_initiated_bs, connP);
-                timer_start(&connP->server_triger_timer);
-            }
-            #endif
-        }
-
         if (NULL == connP->net_context)
         {
             ATINY_LOG(LOG_INFO, "net_context is NULL in connection_create");
@@ -517,9 +491,6 @@ void lwm2m_close_connection(void *sessionH, void *userData)
 
     app_data = (client_data_t *)userData;
     targetP = (connection_t *)sessionH;
-#ifdef LWM2M_BOOTSTRAP
-    timer_stop(&targetP->server_triger_timer);
-#endif
     if (targetP == app_data->connList)
     {
         app_data->connList = targetP->next;
@@ -669,24 +640,6 @@ void lwm2m_register_connection_err_notify(lwm2m_connection_err_notify_t nofiy)
 {
     g_connection_err_notify = nofiy;
 }
-
-void lwm2m_step_striger_server_initiated_bs(connection_t * sessionH)
-{
-    if (sessionH == NULL)
-    {
-        return;
-    }
-    timer_step(&sessionH->server_triger_timer);
-}
-void lwm2m_stop_striger_server_initiated_bs(connection_t * sessionH)
-{
-    if (sessionH == NULL)
-    {
-        return;
-    }
-    timer_stop(&sessionH->server_triger_timer);
-}
-
 
 bool lwm2m_is_sec_obj_uri_valid(uint16_t secObjInstID, void *userData)
 {

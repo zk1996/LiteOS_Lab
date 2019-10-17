@@ -581,20 +581,6 @@ lwm2m_object_t *get_security_object(uint16_t serverId, atiny_param_t *atiny_para
         ins_flag |= INS_IOT_SERVER_FLAG;
         total_ins = 1;
         break;
-    case BOOTSTRAP_SEQUENCE:
-        if ((atiny_params->security_params[0].server_ip != NULL) && (atiny_params->security_params[0].server_port != NULL))
-        {
-            ins_flag |= INS_IOT_SERVER_FLAG;
-            ins_flag |= INS_BS_SERVER_FLAG;
-
-            total_ins = 2;
-        }
-        else
-        {
-            ins_flag |= INS_BS_SERVER_FLAG;
-            total_ins = 1;
-        }
-        break;
     case BOOTSTRAP_CLIENT_INITIATED:
         ins_flag |= INS_BS_SERVER_FLAG;
         total_ins = 1;

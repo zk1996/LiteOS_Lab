@@ -154,10 +154,6 @@ void bootstrap_step(lwm2m_context_t * contextP,
             //STATE_BS_HOLD_OFF. of course, the value could be wrote by the bs server. encode decode used for securityobj/serverobj instance
 
             targetP->registration =  currentTime;
-            if(lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-            {
-                targetP->registration = (currentTime + targetP->lifetime);
-            }
             bootstrap_createBsConnection(contextP, targetP);
             currentTime = lwm2m_gettime();
             targetP->status = STATE_BS_HOLD_OFF;
@@ -176,20 +172,11 @@ void bootstrap_step(lwm2m_context_t * contextP,
         case STATE_BS_HOLD_OFF:
             if (targetP->registration <= currentTime)
             {
-                if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-                {
-                    lwm2m_stop_striger_server_initiated_bs(targetP->sessionH);
-                    targetP->status = STATE_REG_FAILED;
-                }
-                else
-                {
-                    prv_requestBootstrap(contextP, targetP);
-                }
+                prv_requestBootstrap(contextP, targetP);
             }
             else if (*timeoutP > targetP->registration - currentTime)
             {
                 *timeoutP = targetP->registration - currentTime;
-                 lwm2m_step_striger_server_initiated_bs(targetP->sessionH);
             }
             break;
 
@@ -235,10 +222,6 @@ void bootstrap_step(lwm2m_context_t * contextP,
         }
         LOG_ARG("Finalal status: %s", STR_STATUS(targetP->status));
 
-        if (lwm2m_isBsCtrlInServerInitiatedBs(contextP))
-        {
-            return;
-        }
         targetP = targetP->next;
     }
 }
@@ -545,7 +528,6 @@ uint8_t bootstrap_handleCommand(lwm2m_context_t * contextP,
             serverP->status = STATE_BS_PENDING;
             contextP->state = STATE_BOOTSTRAPPING;
         }
-        lwm2m_stop_striger_server_initiated_bs(serverP->sessionH);
     }
     LOG_ARG("Server status: %s", STR_STATUS(serverP->status));
 
