@@ -143,7 +143,7 @@ time_t lwm2m_gettime(void);
 
 #ifdef LWM2M_WITH_LOGS
 // Same usage as C89 printf()
-#define lwm2m_printf osal_printf
+#define lwm2m_printf atiny_printf
 #endif
 
 // communication layer
@@ -236,12 +236,22 @@ bool lwm2m_session_is_equal(void * session1, void * session2, void * userData);
 #define LWM2M_SERVER_STORING_ID     6
 #define LWM2M_SERVER_BINDING_ID     7
 #define LWM2M_SERVER_UPDATE_ID      8
+#define LWM2M_SERVER_BSTRIGGER      9
 
 #define LWM2M_SECURITY_MODE_PRE_SHARED_KEY  0
 #define LWM2M_SECURITY_MODE_RAW_PUBLIC_KEY  1
 #define LWM2M_SECURITY_MODE_CERTIFICATE     2
 #define LWM2M_SECURITY_MODE_NONE            3
 
+#define LWM2M_TRIGER_SERVER_MODE_INITIATED_TIME 60
+
+
+#define MAX_FACTORY_BS_RETRY_CNT 3
+#define MAX_CLIENT_INITIATED_BS_RETRY_CNT 3
+#define FACTORY_BS_DELAY_BASE 0
+#define CLIENT_INITIATED_BS_DELAY_BASE 0
+#define FACTORY_BS_DELAY_INTERVAL 10
+#define CLIENT_INITIATED_BS_DELAY_INTERVAL 10
 
 /*
  * Utility functions for sorted linked list

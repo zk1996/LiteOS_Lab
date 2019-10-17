@@ -102,3 +102,4 @@ int ota_storage_flag_write(ota_flag_t *flag);
 
 
 #endif /* LITEOS_LAB_IOT_LINK_OTA_OTA_FLAG_H_ */
+

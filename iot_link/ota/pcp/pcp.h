@@ -31,6 +31,8 @@
  * Import, export and usage of Huawei LiteOS in any manner by you shall be in compliance with such
  * applicable export control laws and regulations.
  *---------------------------------------------------------------------------*/
+#ifndef LITECOAP_PORT_H
+#define LITECOAP_PORT_H
 /**
  *  DATE                AUTHOR      INSTRUCTION
  *  2019-09-19 16:49  zhangqianfu  The first version
@@ -44,5 +46,5 @@
 int pcp_msg_push(void *msg, int len);
 int ota_pcp_init(int (*fn_pcp_send_msg)(void *msg,int len));
 
-
 #endif /* LITEOS_LAB_IOT_LINK_OTA_PCP_PCP_H_ */
+

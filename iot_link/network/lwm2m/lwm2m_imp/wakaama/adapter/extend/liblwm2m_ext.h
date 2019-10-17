@@ -41,6 +41,7 @@
 
 #include "er-coap-13/er-coap-13.h"
 #include <osal.h>
+#include <atiny_log.h>
 
 
 #ifdef __cplusplus
