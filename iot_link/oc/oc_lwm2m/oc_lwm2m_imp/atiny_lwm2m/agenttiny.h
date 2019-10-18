@@ -96,6 +96,7 @@ typedef enum
     ATINY_GET_LINK_QUALITY,
     ATINY_GET_LINK_UTILIZATION,
     ATINY_WRITE_APP_DATA,
+    ATINY_EXECUTE_APP_DATA,
     ATINY_UPDATE_PSK,
     ATINY_GET_LATITUDE,
     ATINY_GET_LONGITUDE,
@@ -169,9 +170,9 @@ typedef lwm2m_bootstrap_type_e   atiny_bootstrap_type_e;
 
 typedef struct
 {
-    char* binding;               /*鐩墠鏀寔U鎴栬�匲Q*/
-    int   life_time;             /*蹇呴�夛紝榛樿50000,濡傝繃鐭紝鍒欓绻佸彂閫乽pdate鎶ユ枃锛屽杩囬暱锛屽湪绾跨姸鎬佹洿鏂版椂闂撮暱*/
-    unsigned int  storing_cnt;   /*storing涓簍rue鏃讹紝lwm2m缂撳瓨鍖烘�诲瓧鑺備釜鏁�*/
+    char* binding;               /*目前支持U或者UQ*/
+    int   life_time;             /*必选，默认50000,如过短，则频繁发送update报文，如过长，在线状态更新时间长*/
+    unsigned int  storing_cnt;   /*storing为true时，lwm2m缓存区总字节个数*/
 
     atiny_bootstrap_type_e  bootstrap_mode; /* bootstrap mode  */
     int   hold_off_time; /* bootstrap hold off time for server initiated bootstrap */
@@ -206,6 +207,7 @@ typedef struct
     atiny_server_param_t   server_params;
     //both iot_server and bs_server have psk & pskID, index 0 for iot_server, and index 1 for bs_server
     atiny_security_param_t security_params[2];
+    void      *userData;
 } atiny_param_t;
 
 typedef struct
