@@ -178,9 +178,12 @@ int link_main(void *args)
 
 
     //////////////////////////  COAP PROTOCOL  /////////////////////////////////
-    #if CONFIG_COAP_ENABLE
+    #if CONFIG_LITE_COAP_ENABLE
         #include <litecoap_port.h>
         coap_install_litecoap();
+    #elif CONFIG_LIBCOAP_ENABLE
+        #include <libcoap_port.h>
+        coap_install_libcoap();
     #endif
 
 //////////////////////////  OC MQTT  //////////////////////////////////

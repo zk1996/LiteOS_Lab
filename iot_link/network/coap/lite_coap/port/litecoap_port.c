@@ -382,7 +382,10 @@ static int __send(coap_al_sndpara_t *sndparam)
     }
     else
     {
-    	ret = litecoap_send(sndparam->handle, ((coap_context_t *)(sndparam->handle))->sndque->msg);
+        if (((coap_context_t *)(sndparam->handle))->sndque)
+        {
+    	    ret = litecoap_send(sndparam->handle, ((coap_context_t *)(sndparam->handle))->sndque->msg);
+    	}
     }
 
     return ret;
